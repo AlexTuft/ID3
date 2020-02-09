@@ -1,30 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace C45.Tree
 {
     public interface IGainFunc
     {
-        string CalculateHighestGain(IDataTable data, string classAttribute);
+        string GetAttributeWithHighestGain(int recordCount, IDictionary<string, ValueClassCounts> attributesValueCounts, ClassCounts classCounts);
     }
 
-    class Gain : IGainFunc
+    partial class Gain : IGainFunc
     {
-        public string CalculateHighestGain(IDataTable data, string classAttribute)
+        public string GetAttributeWithHighestGain(int recordCount, IDictionary<string, ValueClassCounts> attributesValueCounts, ClassCounts classCounts)
         {
             string highestGainAttribute = "";
             double hightestGainValue = 0.0;
 
-            var dataSummary = new DataSummary(data, classAttribute);
+            double classAttributeEntropy = CalculateEntopyForClass(recordCount, classCounts);
 
-            foreach (var attribute in dataSummary.AttributeSummaries)
+            foreach (var attributeAndCounts in attributesValueCounts)
             {
-                double gain = CalculateGainForAttribute(data, attribute, classAttribute);
+                double gain = CalculateGainForAttribute(recordCount, attributeAndCounts.Value, classAttributeEntropy);
                 if (gain > hightestGainValue)
                 {
-                    highestGainAttribute = attribute;
+                    highestGainAttribute = attributeAndCounts.Key;
                     hightestGainValue = gain;
                 }
             }
@@ -32,36 +30,51 @@ namespace C45.Tree
             return highestGainAttribute;
         }
 
-        private double CalculateGainForAttribute()
+        private static double CalculateEntopyForClass(int recordCount, ClassCounts classCounts)
         {
-            var valueEntropies = new Dictionary<string, double>();
-
-            foreach (var valueCount in valueCounts)
+            double classAttributeEntropy = 0.0;
+            foreach (var @class in classCounts.Classes)
             {
-                double entropy = 0.0;
-                foreach (var classCount in valueClassCounts[valueCount.Key])
-                {
-                    var a = (double)classCount.Value / valueCount.Value;
-                    entropy += -a * Math.Log2(a);
-                }
-                valueEntropies[valueCount.Key] = entropy;
+                var a = (double)classCounts.CountOf(@class) / recordCount;
+                classAttributeEntropy += -a * Math.Log2(a);
             }
 
+            return classAttributeEntropy;
+        }
+
+        private double CalculateGainForAttribute(int recordCount, ValueClassCounts valueCounts, double classAttributeEntropy)
+        {
+            Dictionary<string, double> valueEntropies = CalculateEntropiesForValuesInAttribute(valueCounts);
+            double attributeEntropy = CalculateEntropyForAttribute(recordCount, valueCounts, valueEntropies);
+            return classAttributeEntropy - attributeEntropy;
+        }
+
+        private static Dictionary<string, double> CalculateEntropiesForValuesInAttribute(ValueClassCounts valueCounts)
+        {
+            var valueEntropies = new Dictionary<string, double>();
+            foreach (var value in valueCounts.UniqueValues)
+            {
+                double entropy = 0.0;
+                foreach (var @class in valueCounts.ClassesFor(value))
+                {
+                    var a = (double)valueCounts.CountOfClass(value, @class) / valueCounts.CountOfValue(value);
+                    entropy += -a * Math.Log2(a);
+                }
+                valueEntropies[value] = entropy;
+            }
+
+            return valueEntropies;
+        }
+
+        private static double CalculateEntropyForAttribute(int recordCount, ValueClassCounts valueCounts, Dictionary<string, double> valueEntropies)
+        {
             double attributeEntropy = 0.0;
             foreach (var valueEntropy in valueEntropies)
             {
-                attributeEntropy += ((double)valueCounts[valueEntropy.Key] / totalCount) * valueEntropy.Value;
+                attributeEntropy += ((double)valueCounts.CountOfValue(valueEntropy.Key) / recordCount) * valueEntropy.Value;
             }
 
-            double classifierAttributeEntropy = 0.0;
-            foreach (var classCount in classifierCounts)
-            {
-                var a = (double)classCount.Value / totalCount;
-                classifierAttributeEntropy += -a * Math.Log2(a);
-            }
-
-            var gain = classifierAttributeEntropy - attributeEntropy;
-            return gain;
+            return attributeEntropy;
         }
     }
 }

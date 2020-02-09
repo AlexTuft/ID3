@@ -1,5 +1,8 @@
-﻿using System;
-using System.Data;
+﻿using C45.Data;
+using C45.Tree;
+using System;
+
+using static C45.Common.ListHelpers;
 
 namespace C45
 {
@@ -25,22 +28,19 @@ namespace C45
             trainingData.AddRow(ListOf("overcast", "hot", "normal", "false", "yes"));
             trainingData.AddRow(ListOf("rainy", "mild", "high", "true", "no"));
 
-            var gain = new Gain();
-            var outlookGain = gain.CalculateHighestGain(trainingData, "Play");
 
-            DecisionTreeBuilder treeBuilder = new DecisionTreeBuilder(new Entropy());
-
-            DecisionTree tree = treeBuilder.BuildTree(trainingData, classificationAttribute: "Play");
+            Tree.C45 treeBuilder = new Tree.C45(new Gain());
+            IDecisionTree tree = treeBuilder.BuildTree(trainingData, classAttribute: "Play");
 
             int totalPredictions = 0;
             int correctPredictions = 0;
 
-            foreach (IDataTableRow row in validationData)
+            foreach (IDataTableRow row in validationData.Rows())
             {
-                string classification = row.Get("Play");
+                string @class = row["Play"];
                 string predictedClassification = tree.Classify(row);
 
-                if (classification == predictedClassification)
+                if (@class == predictedClassification)
                 {
                     correctPredictions++;
                 }
@@ -48,11 +48,6 @@ namespace C45
             }
 
             Console.WriteLine($"Total predictions: {totalPredictions}, correct: {correctPredictions} ({(int)(correctPredictions / totalPredictions * 100)}%)");
-        }
-
-        private static SerializationInfo ListOf(string v1, string v2, string v3, string v4, string v5)
-        {
-            throw new NotImplementedException();
         }
     }
 }

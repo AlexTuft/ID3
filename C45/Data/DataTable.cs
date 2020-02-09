@@ -6,8 +6,8 @@ namespace C45.Data
 {
     public interface IDataTable
     {
+        int RowCount { get; }
         IEnumerable<string> Attributes { get; }
-
         IDataTable DrillDown(string attribute, string value);
         IEnumerable<IDataTableRow> Rows();
     }
@@ -27,6 +27,8 @@ namespace C45.Data
             _attributes = attributes;
             _data = new List<IList<string>>();
         }
+
+        public int RowCount => _data.Count;
 
         public IEnumerable<string> Attributes => _attributes;
 
