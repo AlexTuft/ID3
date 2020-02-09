@@ -1,14 +1,13 @@
-﻿using C45.Data;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace C45.Tree
+namespace C45.Data
 {
-    public class ValueClassCounts
+    public class AttributeSummary
     {
         private readonly Dictionary<string, int> _valueCounts = new Dictionary<string, int>();
         private readonly Dictionary<string, Dictionary<string, int>> _valueClassCounts = new Dictionary<string, Dictionary<string, int>>();
-            
-        public ValueClassCounts(IDataTable data, string attribute, string classAttribute)
+
+        public AttributeSummary(IDataTable data, string attribute, string classAttribute)
         {
             foreach (var row in data.Rows())
             {

@@ -16,13 +16,13 @@ namespace C45.Tree
 
         public IDecisionTree BuildTree(IDataTable data, string classAttribute)
         {
-            var classCounts = new ClassCounts(data, classAttribute);
-            var valueCounts = data.Attributes
+            var classData = new ClassSummary(data, classAttribute);
+            var attributeDatas = data.Attributes
                 .Where(attribute => attribute != classAttribute)
                 .ToDictionary(attribute => attribute,
-                              attribute => new ValueClassCounts(data, attribute, classAttribute));
+                              attribute => new AttributeSummary(data, attribute, classAttribute));
 
-            var attribute = _gain.GetAttributeWithHighestGain(data.RowCount, valueCounts, classCounts);
+            var attribute = _gain.GetAttributeWithHighestGain(data.RowCount, attributeDatas, classData);
                         
             DecisionTreeNode node = new DecisionTreeNode(attribute);
             //foreach (var value in attribute)
