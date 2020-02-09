@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace C45.Tree
 {
-    public class C45
+    public class C45TreeBuilder
     {
         private readonly IGainFunc _gain;
 
-        public C45(IGainFunc gain)
+        public C45TreeBuilder(IGainFunc gain)
         {
             _gain = gain;
         }
@@ -17,34 +17,39 @@ namespace C45.Tree
         public IDecisionTree BuildTree(IDataTable data, string classAttribute)
         {
             var classData = new ClassSummary(data, classAttribute);
+
+            // Handle base case where all classes are the same
+            if (classData.Classes.Count() == 1)
+            {
+                return new DecisionTreeLeafNode(classData.Classes.Single());
+            }
+
             var attributeDatas = data.Attributes
                 .Where(attribute => attribute != classAttribute)
                 .ToDictionary(attribute => attribute,
                               attribute => new AttributeSummary(data, attribute, classAttribute));
 
             var attribute = _gain.GetAttributeWithHighestGain(data.RowCount, attributeDatas, classData);
-                        
-            DecisionTreeNode node = new DecisionTreeNode(attribute);
-            //foreach (var value in attribute)
-            //{
-            //    // Base case where value for attribute only has a single classification.
-            //    // In this case we always return the classification.
-            //    if (value.Classifications.Count == 1)
-            //    {
-            //        node[value] = new DecisionTreeLeafNode(value.Classifications.Single());
-            //    }
-            //    // Default case where we drill down and build a new node.
-            //    else
-            //    {
-            //        IDataTable newData = data.DrillDown(attribute, value);
-            //        node[value] = BuildTree(newData, classAttribute);
-            //    }
-            //}
+            var attributeData = attributeDatas[attribute];
+            var attributeNode = new DecisionTreeNode(attribute);
 
-            return node;
+            foreach (var value in attributeData.UniqueValues)
+            {
+                // Handle base case where all classes are the same
+                if (attributeData.ClassesFor(value).Count() == 1)
+                {
+                   attributeNode.Children[value] = new DecisionTreeLeafNode(attributeData.ClassesFor(value).Single());
+                }
+                // Default case where we drill down and build a new node.
+                else
+                {
+                    IDataTable newData = data.DrillDown(attribute, value);
+                    attributeNode.Children[value] = BuildTree(newData, classAttribute);
+                }
+            }
+
+            return attributeNode;
         }
-
-      
 
         private class DecisionTreeNode : IDecisionTree
         {
@@ -59,7 +64,8 @@ namespace C45.Tree
 
             public string Classify(IDataTableRow row)
             {
-                throw new NotImplementedException();
+                var value = row[_attribute];
+                return Children[value].Classify(row);
             }
         }
 

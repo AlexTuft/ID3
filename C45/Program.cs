@@ -23,13 +23,13 @@ namespace C45
             trainingData.AddRow(ListOf("rainy", "mild", "normal", "false", "yes"));
 
             DataTable validationData = new DataTable(ListOf("Outlook", "Temprature", "Humidity", "Windy", "Play"));
-            trainingData.AddRow(ListOf("sunny", "mild", "normal", "true", "yes"));
-            trainingData.AddRow(ListOf("overcast", "mild", "high", "true", "yes"));
-            trainingData.AddRow(ListOf("overcast", "hot", "normal", "false", "yes"));
-            trainingData.AddRow(ListOf("rainy", "mild", "high", "true", "no"));
+            validationData.AddRow(ListOf("sunny", "mild", "normal", "true", "yes"));
+            validationData.AddRow(ListOf("overcast", "mild", "high", "true", "yes"));
+            validationData.AddRow(ListOf("overcast", "hot", "normal", "false", "yes"));
+            validationData.AddRow(ListOf("rainy", "mild", "high", "true", "no"));
 
 
-            Tree.C45 treeBuilder = new Tree.C45(new Gain());
+            C45TreeBuilder treeBuilder = new C45TreeBuilder(new Gain());
             IDecisionTree tree = treeBuilder.BuildTree(trainingData, classAttribute: "Play");
 
             int totalPredictions = 0;
@@ -47,7 +47,7 @@ namespace C45
                 totalPredictions++;
             }
 
-            Console.WriteLine($"Total predictions: {totalPredictions}, correct: {correctPredictions} ({(int)(correctPredictions / totalPredictions * 100)}%)");
+            Console.WriteLine($"Total predictions: {totalPredictions}, correct: {correctPredictions} ({(int)((double)correctPredictions / totalPredictions * 100)}%)");
         }
     }
 }
