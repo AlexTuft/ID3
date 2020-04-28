@@ -2,13 +2,15 @@
 
 namespace C45.Data
 {
-    public class AttributeSummary
+    public class AttributeData
     {
         private readonly Dictionary<string, int> _valueCounts = new Dictionary<string, int>();
         private readonly Dictionary<string, Dictionary<string, int>> _valueClassCounts = new Dictionary<string, Dictionary<string, int>>();
 
-        public AttributeSummary(IDataTable data, string attribute, string classAttribute)
+        public AttributeData(IDataTable data, string attribute, string classAttribute)
         {
+            Name = attribute;
+
             foreach (var row in data.Rows())
             {
                 var value = row[attribute];
@@ -33,6 +35,8 @@ namespace C45.Data
                 }
             }
         }
+
+        public string Name { get; }
 
         public IEnumerable<string> UniqueValues => _valueCounts.Keys;
 

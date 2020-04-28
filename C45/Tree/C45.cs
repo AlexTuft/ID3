@@ -16,39 +16,50 @@ namespace C45.Tree
 
         public IDecisionTree BuildTree(IDataTable data, string classAttribute)
         {
-            var classData = new ClassSummary(data, classAttribute);
+            var classSummary = new ClassSummary(data, classAttribute);
 
-            // Handle base case where all classes are the same
-            if (classData.Classes.Count() == 1)
+            if (classSummary.AllClassesAreSame())
             {
-                return new DecisionTreeLeafNode(classData.Classes.Single());
+                return CreateLeafNode(classSummary);
             }
-
-            var attributeDatas = data.Attributes
-                .Where(attribute => attribute != classAttribute)
-                .ToDictionary(attribute => attribute,
-                              attribute => new AttributeSummary(data, attribute, classAttribute));
-
-            var attribute = _gain.GetAttributeWithHighestGain(data.RowCount, attributeDatas, classData);
-            var attributeData = attributeDatas[attribute];
-            var attributeNode = new DecisionTreeNode(attribute);
-
-            foreach (var value in attributeData.UniqueValues)
+            else
             {
-                // Handle base case where all classes are the same
-                if (attributeData.ClassesFor(value).Count() == 1)
-                {
-                   attributeNode.Children[value] = new DecisionTreeLeafNode(attributeData.ClassesFor(value).Single());
-                }
-                // Default case where we drill down and build a new node.
-                else
-                {
-                    IDataTable newData = data.DrillDown(attribute, value);
-                    attributeNode.Children[value] = BuildTree(newData, classAttribute);
-                }
+                return HandleDefaultCase(data, classSummary, classAttribute);
+            }
+        }
+
+        private DecisionTreeNode HandleDefaultCase(IDataTable data, ClassSummary classSummary, string classAttribute)
+        {
+            var bestAttribute = GetAttributeWithHighestGain(data, classSummary, classAttribute);
+            var attributeNode = new DecisionTreeNode(bestAttribute.Name);
+            
+            foreach (var value in bestAttribute.UniqueValues)
+            {
+                IDataTable newData = data.DrillDown(bestAttribute.Name, value);
+                attributeNode.Children[value] = BuildTree(newData, classAttribute);
             }
 
             return attributeNode;
+        }
+
+        private AttributeData GetAttributeWithHighestGain(IDataTable data, ClassSummary classSummary, string classAttribute)
+        {
+            var attributeDatas = GetAttributeData(data, classAttribute);
+            var attributeWithHighestGain = _gain.GetAttributeWithHighestGain(data.RowCount, attributeDatas, classSummary);
+            return attributeDatas[attributeWithHighestGain];
+        }
+
+        private static Dictionary<string, AttributeData> GetAttributeData(IDataTable data, string classAttribute)
+        {
+            return data.Attributes
+                .Where(attribute => attribute != classAttribute)
+                .ToDictionary(attribute => attribute,
+                                attribute => new AttributeData(data, attribute, classAttribute));
+        }
+
+        private static DecisionTreeLeafNode CreateLeafNode(ClassSummary classSummary)
+        {
+            return new DecisionTreeLeafNode(classSummary.Classes.Single());
         }
 
         private class DecisionTreeNode : IDecisionTree

@@ -6,12 +6,12 @@ namespace C45.Tree
 {
     public interface IGainFunc
     {
-        string GetAttributeWithHighestGain(int recordCount, IDictionary<string, AttributeSummary> attributeDatas, ClassSummary classData);
+        string GetAttributeWithHighestGain(int recordCount, IDictionary<string, AttributeData> attributeDatas, ClassSummary classData);
     }
 
     public class Gain : IGainFunc
     {
-        public string GetAttributeWithHighestGain(int recordCount, IDictionary<string, AttributeSummary> attributeDatas, ClassSummary classData)
+        public string GetAttributeWithHighestGain(int recordCount, IDictionary<string, AttributeData> attributeDatas, ClassSummary classData)
         {
             string bestAttribute = "";
             double highestGain = 0.0;
@@ -43,13 +43,13 @@ namespace C45.Tree
             return classAttributeEntropy;
         }
 
-        private static double GetGainForAttribute(int recordCount, AttributeSummary attributeData, double classAttributeEntropy)
+        private static double GetGainForAttribute(int recordCount, AttributeData attributeData, double classAttributeEntropy)
         {
             var valueEntropies = GetEntropiesForValuesOfAttribute(attributeData);
             return classAttributeEntropy - GetEntropyForAttribute(recordCount, attributeData, valueEntropies);
         }
 
-        private static Dictionary<string, double> GetEntropiesForValuesOfAttribute(AttributeSummary attributeData)
+        private static Dictionary<string, double> GetEntropiesForValuesOfAttribute(AttributeData attributeData)
         {
             var valueEntropies = new Dictionary<string, double>();
             foreach (var value in attributeData.UniqueValues)
@@ -66,7 +66,7 @@ namespace C45.Tree
             return valueEntropies;
         }
 
-        private static double GetEntropyForAttribute(int recordCount, AttributeSummary attributeData, Dictionary<string, double> valueEntropies)
+        private static double GetEntropyForAttribute(int recordCount, AttributeData attributeData, Dictionary<string, double> valueEntropies)
         {
             double attributeEntropy = 0.0;
             foreach (var valueEntropy in valueEntropies)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace C45.Data
 {
@@ -27,6 +28,11 @@ namespace C45.Data
         public int CountOf(string @class)
         {
             return _classCounts[@class];
+        }
+
+        public bool AllClassesAreSame()
+        {
+            return Classes.Count() == 1;
         }
     }
 }
