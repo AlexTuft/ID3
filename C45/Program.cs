@@ -10,7 +10,7 @@ namespace C45
     {
         static void Main(string[] args)
         {
-            DataTable trainingData = new DataTable(ListOf("Outlook", "Temprature", "Humidity", "Windy", "Play"));
+            var trainingData = new DataTable(ListOf("Outlook", "Temprature", "Humidity", "Windy", "Play"));
             trainingData.AddRow(ListOf("sunny", "hot", "high", "false", "no"));
             trainingData.AddRow(ListOf("sunny", "hot", "high", "true", "no"));
             trainingData.AddRow(ListOf("overcast", "hot", "high", "false", "yes"));
@@ -22,20 +22,20 @@ namespace C45
             trainingData.AddRow(ListOf("sunny", "cool", "normal", "false", "yes"));
             trainingData.AddRow(ListOf("rainy", "mild", "normal", "false", "yes"));
 
-            DataTable validationData = new DataTable(ListOf("Outlook", "Temprature", "Humidity", "Windy", "Play"));
+            var validationData = new DataTable(ListOf("Outlook", "Temprature", "Humidity", "Windy", "Play"));
             validationData.AddRow(ListOf("sunny", "mild", "normal", "true", "yes"));
             validationData.AddRow(ListOf("overcast", "mild", "high", "true", "yes"));
             validationData.AddRow(ListOf("overcast", "hot", "normal", "false", "yes"));
             validationData.AddRow(ListOf("rainy", "mild", "high", "true", "no"));
 
 
-            C45TreeBuilder treeBuilder = new C45TreeBuilder(new Gain());
-            IDecisionTree tree = treeBuilder.BuildTree(trainingData, classAttribute: "Play");
+            var treeBuilder = new C45TreeBuilder();
+            var tree = treeBuilder.BuildTree(trainingData, classifier: "Play");
 
             int totalPredictions = 0;
             int correctPredictions = 0;
 
-            foreach (IDataTableRow row in validationData.Rows())
+            foreach (var row in validationData.Rows())
             {
                 string @class = row["Play"];
                 string predictedClassification = tree.Classify(row);

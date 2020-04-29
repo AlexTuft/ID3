@@ -7,59 +7,36 @@ namespace C45.Tree
 {
     public class C45TreeBuilder
     {
-        private readonly IGainFunc _gain;
-
-        public C45TreeBuilder(IGainFunc gain)
+        public IDecisionTree BuildTree(DataTable data, string classifier)
         {
-            _gain = gain;
-        }
-
-        public IDecisionTree BuildTree(IDataTable data, string classAttribute)
-        {
-            var classSummary = new ClassSummary(data, classAttribute);
-
-            if (classSummary.AllClassesAreSame())
+            var classes = data.GetUniqueValueForAttribute(classifier);
+            if (classes.Count == 1)
             {
-                return CreateLeafNode(classSummary);
+                return new DecisionTreeLeafNode(classes.Single());
             }
             else
             {
-                return HandleDefaultCase(data, classSummary, classAttribute);
+                var attributeGains = data.GetGainForEachAttribute(classifier);
+                // do something if all gains are 0
+
+                return HandleDefaultCase(data, attributeGains, classifier);
             }
         }
 
-        private DecisionTreeNode HandleDefaultCase(IDataTable data, ClassSummary classSummary, string classAttribute)
+        private DecisionTreeNode HandleDefaultCase(DataTable data, IList<(string Attribute, double Gain)> attributeGains, string classifier)
         {
-            var bestAttribute = GetAttributeWithHighestGain(data, classSummary, classAttribute);
-            var attributeNode = new DecisionTreeNode(bestAttribute.Name);
+            var attributeWithHighestGain = attributeGains.GetAttributeWithHighestGain();
+            var valuesForAttribute = data.GetUniqueValueForAttribute(attributeWithHighestGain);
+
+            var attributeNode = new DecisionTreeNode(attributeWithHighestGain);
             
-            foreach (var value in bestAttribute.UniqueValues)
+            foreach (var value in valuesForAttribute)
             {
-                IDataTable newData = data.DrillDown(bestAttribute.Name, value);
-                attributeNode.Children[value] = BuildTree(newData, classAttribute);
+                var newData = data.DrillDown(attributeWithHighestGain, value);
+                attributeNode.Children[value] = BuildTree(newData, classifier);
             }
 
             return attributeNode;
-        }
-
-        private AttributeData GetAttributeWithHighestGain(IDataTable data, ClassSummary classSummary, string classAttribute)
-        {
-            var attributeDatas = GetAttributeData(data, classAttribute);
-            var attributeWithHighestGain = _gain.GetAttributeWithHighestGain(data.RowCount, attributeDatas, classSummary);
-            return attributeDatas[attributeWithHighestGain];
-        }
-
-        private static Dictionary<string, AttributeData> GetAttributeData(IDataTable data, string classAttribute)
-        {
-            return data.Attributes
-                .Where(attribute => attribute != classAttribute)
-                .ToDictionary(attribute => attribute,
-                                attribute => new AttributeData(data, attribute, classAttribute));
-        }
-
-        private static DecisionTreeLeafNode CreateLeafNode(ClassSummary classSummary)
-        {
-            return new DecisionTreeLeafNode(classSummary.Classes.Single());
         }
 
         private class DecisionTreeNode : IDecisionTree
@@ -73,7 +50,7 @@ namespace C45.Tree
 
             public IDictionary<string, IDecisionTree> Children { get; } = new Dictionary<string, IDecisionTree>();
 
-            public string Classify(IDataTableRow row)
+            public string Classify(DataTable.Row row)
             {
                 var value = row[_attribute];
                 return Children[value].Classify(row);
@@ -89,7 +66,7 @@ namespace C45.Tree
                 _classification = classification;
             }
 
-            public string Classify(IDataTableRow row)
+            public string Classify(DataTable.Row row)
             {
                 return _classification;
             }

@@ -4,20 +4,7 @@ using System.Linq;
 
 namespace C45.Data
 {
-    public interface IDataTable
-    {
-        int RowCount { get; }
-        IEnumerable<string> Attributes { get; }
-        IDataTable DrillDown(string attribute, string value);
-        IEnumerable<IDataTableRow> Rows();
-    }
-
-    public interface IDataTableRow
-    {
-        string this[string attribute] {get; }
-    }
-    
-    public class DataTable : IDataTable
+    public class DataTable
     {
         private readonly IList<string> _attributes;
         private readonly List<IList<string>> _data;
@@ -40,7 +27,7 @@ namespace C45.Data
             _data.Add(row);
         }
 
-        private void AddRow(IDataTableRow row)
+        private void AddRow(DataTable.Row row)
         {
             var values = new List<string>();
             foreach (var attribute in _attributes)
@@ -50,7 +37,7 @@ namespace C45.Data
             AddRow(values);
         }
 
-        public IEnumerable<IDataTableRow> Rows()
+        public IEnumerable<DataTable.Row> Rows()
         {
             for (int i = 0; i < _data.Count; i++)
             {
@@ -58,7 +45,7 @@ namespace C45.Data
             }
         }
 
-        public IDataTable DrillDown(string attribute, string value)
+        public DataTable DrillDown(string attribute, string value)
         {
             DataTable newTable = new DataTable(_attributes.Where(x => x != attribute).ToList());
 
@@ -73,7 +60,7 @@ namespace C45.Data
             return newTable;
         }
 
-        private class Row : IDataTableRow
+        public class Row
         {
             private readonly DataTable _table;
             private readonly int _rowIndex;

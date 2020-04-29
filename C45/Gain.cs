@@ -1,9 +1,7 @@
 ﻿using C45.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace C45.Tree
+namespace C45
 {
     public static class Gain
     {
@@ -58,24 +56,6 @@ namespace C45.Tree
         private static double PartialEntropyValue(double a)
         {
             return -a * Math.Log2(a);
-        }
-    }
-
-    public static class GainHelpers
-    {
-        public static IList<(string Attribute, double Gain)> GetGainForEachAttribute(this DataTable data, string classifier)
-        {
-            var attributeGains = new List<(string Attribute, double Gain)>();
-            foreach (var attribute in data.Attributes.Where(x => x != classifier))
-            {
-                attributeGains.Add((Attribute: attribute, Gain: Gain.CalculateGainForAttribute(data, attribute, classifier)));
-            }
-            return attributeGains;
-        }
-
-        public static string GetAttributeWithHighestGain(this IList<(string Attribute, double Gain)> attributeGains)
-        {
-            return attributeGains.OrderByDescending(x => x.Gain).First().Attribute;
         }
     }
 }
