@@ -25,13 +25,21 @@ namespace C45
 
             foreach (var row in dataSets.TestData.Rows())
             {
-                string @class = row[classificationAttributue];
-                string predictedClassification = tree.Classify(row);
-
-                if (@class == predictedClassification)
+                try
                 {
-                    correctPredictions++;
+                    string predictedClassification = tree.Classify(row);
+
+                    string @class = row[classificationAttributue];
+                    if (@class == predictedClassification)
+                    {
+                        correctPredictions++;
+                    }
                 }
+                catch (ClassificationException ex)
+                {
+                    Console.WriteLine("Unable to classify row because: " + ex.Message);
+                }
+
                 totalPredictions++;
             }
 

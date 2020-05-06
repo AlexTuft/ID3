@@ -55,6 +55,13 @@ namespace C45.Tree
             public string Classify(DataTable.Row row)
             {
                 var value = row[_attribute];
+                
+                // handle unseen value
+                if (!Children.ContainsKey(value))
+                {
+                    throw new ClassificationException($"Unseen value ({value}) for attribute {_attribute}.");
+                }
+
                 return Children[value].Classify(row);
             }
         }
