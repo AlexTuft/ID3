@@ -27,6 +27,14 @@ namespace C45.Data
             _data.Add(row);
         }
 
+        public void AddRows(IEnumerable<IList<string>> rows)
+        {
+            foreach (var row in rows)
+            {
+                AddRow(row);
+            }
+        }
+
         private void AddRow(DataTable.Row row)
         {
             var values = new List<string>();

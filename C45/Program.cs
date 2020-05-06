@@ -1,4 +1,5 @@
 using C45.Data;
+using C45.Loaders;
 using C45.Tree;
 using C45.Tree.Drawing;
 using System;
@@ -11,34 +12,20 @@ namespace C45
     {
         static void Main(string[] args)
         {
-            var trainingData = new DataTable(ListOf("Outlook", "Temprature", "Humidity", "Windy", "Play"));
-            trainingData.AddRow(ListOf("sunny", "hot", "high", "false", "no"));
-            trainingData.AddRow(ListOf("sunny", "hot", "high", "true", "no"));
-            trainingData.AddRow(ListOf("overcast", "hot", "high", "false", "yes"));
-            trainingData.AddRow(ListOf("rainy", "mild", "high", "false", "yes"));
-            trainingData.AddRow(ListOf("rainy", "cool", "normal", "false", "yes"));
-            trainingData.AddRow(ListOf("rainy", "cool", "normal", "true", "no"));
-            trainingData.AddRow(ListOf("overcast", "cool", "normal", "true", "yes"));
-            trainingData.AddRow(ListOf("sunny", "mild", "high", "false", "no"));
-            trainingData.AddRow(ListOf("sunny", "cool", "normal", "false", "yes"));
-            trainingData.AddRow(ListOf("rainy", "mild", "normal", "false", "yes"));
-
-            var validationData = new DataTable(ListOf("Outlook", "Temprature", "Humidity", "Windy", "Play"));
-            validationData.AddRow(ListOf("sunny", "mild", "normal", "true", "yes"));
-            validationData.AddRow(ListOf("overcast", "mild", "high", "true", "yes"));
-            validationData.AddRow(ListOf("overcast", "hot", "normal", "false", "yes"));
-            validationData.AddRow(ListOf("rainy", "mild", "high", "true", "no"));
-
+            var dataSets = ZooDatasetLoader.Load(0.7);
+            var classificationAttributue = "class type";
 
             var treeBuilder = new C45TreeBuilder();
-            var tree = treeBuilder.BuildTree(trainingData, classifier: "Play");
+            var tree = treeBuilder.BuildTree(dataSets.TrainigData, classificationAttributue);
+            
+            Console.WriteLine(tree.Draw());
 
             int totalPredictions = 0;
             int correctPredictions = 0;
 
-            foreach (var row in validationData.Rows())
+            foreach (var row in dataSets.TestData.Rows())
             {
-                string @class = row["Play"];
+                string @class = row[classificationAttributue];
                 string predictedClassification = tree.Classify(row);
 
                 if (@class == predictedClassification)
@@ -47,8 +34,6 @@ namespace C45
                 }
                 totalPredictions++;
             }
-
-            Console.WriteLine(tree.Draw());
 
             Console.WriteLine($"Total predictions: {totalPredictions}, correct: {correctPredictions} ({(int)((double)correctPredictions / totalPredictions * 100)}%)");
         }
