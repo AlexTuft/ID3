@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace C45.Tree.Drawing
@@ -25,19 +26,11 @@ namespace C45.Tree.Drawing
                 x += NodeConnectionStartOffsetX;
                 y += NodeConnectionStartOffsetY;
 
-                // Keep current value of x so we can reset back to it later
-                int connectionStartX = x;
-
                 var children = treeNode.Children.ToList();
                 for (int i = 0; i < children.Count; i++)
                 {
                     bool isLastConnection = i == children.Count - 1;
-
-                    DrawConnection(children[i].Key, x, y, canvas, isLastConnection);
-                    x += children[i].Key.Length + ConnectionEndOffsetX;
-
-                    var nextLineY = ProcessTree(children[i].Value, canvas, x, y, false);
-                    x = connectionStartX;
+                    int nextLineY = DrawChild(canvas, x, y, children, i, isLastConnection);
 
                     if (!isLastConnection)
                     {
@@ -54,6 +47,15 @@ namespace C45.Tree.Drawing
             }
 
             return y;
+        }
+
+        private static int DrawChild(TextCanvas canvas, int x, int y, List<KeyValuePair<string, IDecisionTree>> children, int i, bool isLastConnection)
+        {
+            DrawConnection(children[i].Key, x, y, canvas, isLastConnection);
+            x += children[i].Key.Length + ConnectionEndOffsetX;
+
+            var nextLineY = ProcessTree(children[i].Value, canvas, x, y, false);
+            return nextLineY;
         }
 
         private static void DrawNode(IDecisionTree node, int x, int y, TextCanvas canvas, NodeType type)
