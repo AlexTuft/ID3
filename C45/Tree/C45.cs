@@ -39,7 +39,7 @@ namespace C45.Tree
             return attributeNode;
         }
 
-        private class DecisionTreeNode : IDecisionTree
+        internal class DecisionTreeNode : IDecisionTree
         {
             private readonly string _attribute;
 
@@ -47,6 +47,8 @@ namespace C45.Tree
             {
                 _attribute = attribute;
             }
+
+            public string Label => _attribute;
 
             public IDictionary<string, IDecisionTree> Children { get; } = new Dictionary<string, IDecisionTree>();
 
@@ -57,7 +59,7 @@ namespace C45.Tree
             }
         }
 
-        private class DecisionTreeLeafNode : IDecisionTree
+        internal class DecisionTreeLeafNode : IDecisionTree
         {
             private readonly string _classification;
 
@@ -65,6 +67,8 @@ namespace C45.Tree
             {
                 _classification = classification;
             }
+
+            public string Label => _classification;
 
             public string Classify(DataTable.Row row)
             {

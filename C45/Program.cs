@@ -1,5 +1,6 @@
-﻿using C45.Data;
+using C45.Data;
 using C45.Tree;
+using C45.Tree.Drawing;
 using System;
 
 using static C45.Common.ListHelpers;
@@ -46,6 +47,8 @@ namespace C45
                 }
                 totalPredictions++;
             }
+
+            Console.WriteLine(tree.Draw());
 
             Console.WriteLine($"Total predictions: {totalPredictions}, correct: {correctPredictions} ({(int)((double)correctPredictions / totalPredictions * 100)}%)");
         }
