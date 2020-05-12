@@ -24,7 +24,8 @@ namespace C45.Loaders
                 .RemoveColumn("capital-loss")
                 .RemoveColumn("hours-per-week")
                 .NormalizeRecords()
-                .GroupColumn("age", ToAgeGroups);
+                .GroupColumn("age", ToAgeGroups)
+                .GroupColumn("native-country", ToRegions);
         }
 
         private static bool IsNotMissingValue(string x)
@@ -60,6 +61,56 @@ namespace C45.Loaders
             }
 
             return ageGroup;
+        }
+
+        private static string ToRegions(string countryName)
+        {
+            // Age bands taken from https://www.ons.gov.uk/aboutus/transparencyandgovernance/freedomofinformationfoi/ukaverageincomebyagebands
+
+            var dictionary = new Dictionary<string, string>
+            {
+                ["china"] = "asia",
+                ["india"] = "asia",
+                ["iran"] = "asia",
+                ["japan"] = "asia",
+                ["laos"] = "asia",
+                ["philippines"] = "asia",
+                ["taiwan"] = "asia",
+                ["thailand"] = "asia",
+                ["vietnam"] = "asia",
+                ["cuba"] = "central america",
+                ["dominican-republic"] = "central america",
+                ["el-salvador"] = "central america",
+                ["guatemala"] = "central america",
+                ["haiti"] = "central america",
+                ["honduras"] = "central america",
+                ["jamaica"] = "central america",
+                ["mexico"] = "central america",
+                ["nicaragua"] = "central america",
+                ["puerto-rico"] = "central america",
+                ["england"] = "europe",
+                ["france"] = "europe",
+                ["germany"] = "europe",
+                ["greece"] = "europe",
+                ["holand-netherlands"] = "europe",
+                ["hungary"] = "europe",
+                ["ireland"] = "europe",
+                ["italy"] = "europe",
+                ["poland"] = "europe",
+                ["portugal"] = "europe",
+                ["scotland"] = "europe",
+                ["yugoslavia"] = "europe",
+                ["hong"] = "hong",
+                ["canada"] = "north america",
+                ["united-states"] = "north america",
+                ["cambodia"] = "south america",
+                ["columbia"] = "south america",
+                ["ecuador"] = "south america",
+                ["peru"] = "south america",
+                ["trinadad & tobago"] = "south america"
+            };
+
+            return dictionary.ContainsKey(countryName) ? dictionary[countryName] : countryName;
         }
 
         public IList<string> Attributes => _dataFile.Attributes;
