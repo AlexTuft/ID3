@@ -7,13 +7,12 @@ namespace C45.Loaders
     public class IncomeDataFile : IDataFile
     {
         private const string MissingValue = "?";
-
+        private const string DateFilePath = "Resources/income_evaluation.csv";
         private readonly IDataFile _dataFile;
 
         public IncomeDataFile()
         {
-            _dataFile = new ReadDataFile("Resources/income_evaluation.csv")
-                .ShuffleRecords()
+            _dataFile = new ReadDataFile(DateFilePath).ShuffleRecords()
                 .NormalizeAttributes()
                 .FilterRecords("workclass", IsNotMissingValue)
                 .LimitRecords(5000)
@@ -26,6 +25,8 @@ namespace C45.Loaders
                 .NormalizeRecords()
                 .GroupColumn("age", ToAgeGroups)
                 .GroupColumn("native-country", ToRegions);
+
+                _dataFile.Dump(DateFilePath + $"_{DateTime.Now.Ticks}.txt");
         }
 
         private static bool IsNotMissingValue(string x)
