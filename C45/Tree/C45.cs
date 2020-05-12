@@ -31,10 +31,16 @@ namespace C45.Tree
             }
         }
 
-        private DecisionTreeNode HandleDefaultCase(DataTable data, IList<(string Attribute, double Gain)> attributeGains, string classifier)
+        private IDecisionTree HandleDefaultCase(DataTable data, IList<(string Attribute, double Gain)> attributeGains, string classifier)
         {
             var attributeWithHighestGain = attributeGains.GetAttributeWithHighestGain();
             var valuesForAttribute = data.GetUniqueValueForAttribute(attributeWithHighestGain);
+
+            if (valuesForAttribute.Count == 1)
+            {
+                var newData = data.DrillDown(attributeWithHighestGain, valuesForAttribute.Single());
+                return BuildTree(newData, classifier);
+            }
 
             var attributeNode = new DecisionTreeNode(attributeWithHighestGain);
             
