@@ -89,22 +89,4 @@ namespace C45.Loaders
                     x => x[ClassFileClassLabelColumnIndex]);
         }
     }
-
-    public static class CsvStreamReaderHelper
-    {
-        private const char Delimiter = ',';
-        
-        public static IEnumerable<string> CSVReadLine(this StreamReader reader)
-        {
-            return reader.ReadLine().Split(Delimiter);
-        }
-
-        public static IEnumerable<IList<string>> CSVLines(this StreamReader reader)
-        {
-            while (!reader.EndOfStream)
-            {
-                yield return reader.CSVReadLine().ToList();
-            }
-        }
-    }
 }
