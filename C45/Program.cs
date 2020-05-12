@@ -6,20 +6,80 @@ using System.Linq;
 
 namespace C45
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
-        {
-            var dataSets = new DataSet(new IncomeDataFile(), trainingTestSplitRatio: 0.7);
+        private const string FlagDrawTree = "--draw-tree";
+        private const string FlagShowErrors = "--show-errors";
 
+        private const string Option_SplitData = "--data-split"; // expects as next arg
+
+        private const string SwitchWeatherDataSet = "--dataset-weather";
+        private const string SwitchZooDataSet = "--dataset-zoo";
+
+        private static string[] Args { get; set; }
+
+        public static void Main(string[] args)
+        {
+            Args = args;
+
+            DataSet dataSets = CreateDataSet();
+            IDecisionTree tree = BuildTree(dataSets);
+
+            DrawTree(args, tree);
+            ValidateTree(args, dataSets, tree);
+        }
+
+        private static DataSet CreateDataSet()
+        {
+            IDataFile dataFile = LoadData();
+            var trainingTestSplitRatio = GetDataSplit();
+            return new DataSet(dataFile, trainingTestSplitRatio);
+        }
+
+        private static double GetDataSplit()
+        {
+            var trainingTestSplitRatio = 0.7;
+            if (Args.Contains(Option_SplitData))
+            {
+                double.TryParse(Args[Array.IndexOf(Args, Option_SplitData) + 1], out trainingTestSplitRatio);
+            }
+
+            return trainingTestSplitRatio;
+        }
+
+        private static IDataFile LoadData()
+        {
+            IDataFile dataFile = new IncomeDataFile();
+
+            if (Args.Contains(SwitchZooDataSet))
+            {
+                dataFile = new ZooDataFile();
+            }
+            else if (Args.Contains(SwitchWeatherDataSet))
+            {
+                dataFile = new WeatherData();
+            }
+
+            return dataFile;
+        }
+
+        private static IDecisionTree BuildTree(DataSet dataSets)
+        {
             var treeBuilder = new C45TreeBuilder();
             var tree = treeBuilder.BuildTree(dataSets.TrainingData, dataSets.ClassificationAttribute);
+            return tree;
+        }
 
-            if (args.Any(x => string.Equals(x, "--draw-tree")))
+        private static void DrawTree(string[] args, IDecisionTree tree)
+        {
+            if (args.Contains(FlagDrawTree))
             {
                 Console.WriteLine(tree.Draw());
             }
+        }
 
+        private static void ValidateTree(string[] args, DataSet dataSets, IDecisionTree tree)
+        {
             int totalPredictions = 0;
             int correctPredictions = 0;
 
@@ -37,7 +97,7 @@ namespace C45
                 }
                 catch (ClassificationException ex)
                 {
-                    if (args.Any(x => string.Equals(x, "--show-errors")))
+                    if (args.Contains(FlagShowErrors))
                     {
                         Console.WriteLine("Unable to classify row because: " + ex.Message);
                     }

@@ -2,7 +2,7 @@
   "profiles": {
     "C45": {
       "commandName": "Project",
-      "commandLineArgs": "--show-errors --draw-tree"
+      "commandLineArgs": "--show-errors --draw-tree --dataset-zoo --data-split 0.01"
     }
   }
 }

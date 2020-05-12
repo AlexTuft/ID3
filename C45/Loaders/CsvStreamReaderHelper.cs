@@ -7,7 +7,7 @@ namespace C45.Loaders
     public static class CsvStreamReaderHelper
     {
         private const char Delimiter = ',';
-        
+
         public static IEnumerable<string> CSVReadLine(this StreamReader reader)
         {
             return reader.ReadLine().Split(Delimiter);

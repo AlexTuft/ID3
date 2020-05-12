@@ -21,7 +21,8 @@ namespace C45.Data
 
         public void AddRow(IList<string> row)
         {
-            if (row.Count != _attributes.Count) {
+            if (row.Count != _attributes.Count)
+            {
                 throw new ArgumentException($"Number of items must be {_attributes.Count} but was {row.Count}.", nameof(row));
             }
             _data.Add(row);

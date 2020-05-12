@@ -17,9 +17,9 @@ namespace C45.Loaders
         }
 
         public DataTable TrainingData { get; }
-        
+
         public DataTable TestData { get; }
-        
+
         public string ClassificationAttribute { get; }
 
         private static (DataTable TrainingData, DataTable TestData) Load(

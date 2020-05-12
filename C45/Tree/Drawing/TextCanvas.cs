@@ -13,17 +13,17 @@ namespace C45.Tree
         public void Draw(string text, int x, int y)
         {
             var lines = text.Split('\n');
-            
+
             GuardCoordinates(x, y);
-            
+
             var boundingBoxWidth = lines.Max(x => x.Length);
             var boundingBoxHeight = lines.Length;
-            
+
             _maxX = Math.Max(_maxX, x + boundingBoxWidth);
             _maxY = Math.Max(_maxY, y + boundingBoxHeight);
 
             CheckBounds(x + boundingBoxWidth, y + boundingBoxHeight);
-            
+
             DrawToCanvas(lines, x, y);
         }
 
@@ -74,8 +74,10 @@ namespace C45.Tree
         {
             var newCanvas = new char[newHeight, newWidth];
 
-            for (int y = 0; y < Math.Min(_maxY, _canvas.GetLength(0)); y++) {
-                for (int x = 0; x < _canvas.GetLength(1); x++) {
+            for (int y = 0; y < Math.Min(_maxY, _canvas.GetLength(0)); y++)
+            {
+                for (int x = 0; x < _canvas.GetLength(1); x++)
+                {
                     newCanvas[y, x] = _canvas[y, x];
                 }
             }
@@ -94,11 +96,13 @@ namespace C45.Tree
         public override string ToString()
         {
             var builder = new StringBuilder();
-            
+
             int limitY = Math.Min(_canvas.GetLength(0), _maxY);
             int limitX = Math.Min(_canvas.GetLength(1), _maxX);
-            for (int y = 0; y < limitY; y++) {
-                for (int x = 0; x < limitX; x++) {
+            for (int y = 0; y < limitY; y++)
+            {
+                for (int x = 0; x < limitX; x++)
+                {
                     builder.Append(_canvas[y, x]);
                 }
                 builder.Append('\n');

@@ -26,7 +26,7 @@ namespace C45.Loaders
                 .GroupColumn("age", ToAgeGroups)
                 .GroupColumn("native-country", ToRegions);
 
-                _dataFile.Dump(DateFilePath + $"_{DateTime.Now.Ticks}.txt");
+            _dataFile.Dump(DateFilePath + $"_{DateTime.Now.Ticks}.txt");
         }
 
         private static bool IsNotMissingValue(string x)

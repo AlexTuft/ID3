@@ -1,5 +1,4 @@
 ﻿using C45.Data;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -36,14 +35,8 @@ namespace C45.Tree
             var attributeWithHighestGain = attributeGains.GetAttributeWithHighestGain();
             var valuesForAttribute = data.GetUniqueValueForAttribute(attributeWithHighestGain);
 
-            if (valuesForAttribute.Count == 1)
-            {
-                var newData = data.DrillDown(attributeWithHighestGain, valuesForAttribute.Single());
-                return BuildTree(newData, classifier);
-            }
-
             var attributeNode = new DecisionTreeNode(attributeWithHighestGain);
-            
+
             foreach (var value in valuesForAttribute)
             {
                 var newData = data.DrillDown(attributeWithHighestGain, value);
@@ -75,7 +68,7 @@ namespace C45.Tree
             public string Classify(DataTable.Row row)
             {
                 var value = row[_attribute];
-                
+
                 // handle unseen value
                 if (!Children.ContainsKey(value))
                 {
