@@ -1,43 +1,28 @@
-﻿using C45.Data;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace C45.Loaders
 {
-    public static class ZooDatasetLoader
+    public class ZooDataFile : IDataFile
     {
         private const int ClassFileClassNumberColumnIndex = 0;
         private const int ClassFileClassLabelColumnIndex = 2;
 
-        public static (DataTable TrainigData, DataTable TestData) Load(double trainingTestSplitRatio)
+        public ZooDataFile()
         {
-            var attributesAndRecords = LoadAttributesAndRecords();
-            var trainingAndTestData = SplitData(attributesAndRecords.Records, trainingTestSplitRatio);
-
-            var trainingSet = new DataTable(attributesAndRecords.Attributes);
-            trainingSet.AddRows(trainingAndTestData.TrainingData);
-
-            var testSet = new DataTable(attributesAndRecords.Attributes);
-            testSet.AddRows(trainingAndTestData.TestData);
-
-            return (trainingSet, testSet);
+            var attributesAndRecords = GetAttributesAndRecords();
+            Attributes = attributesAndRecords.Attributes;
+            Records = attributesAndRecords.Records;
         }
 
-        private static (IList<IList<string>> TrainingData, IList<IList<string>> TestData) SplitData(
-            IEnumerable<IList<string>> records, double trainingTestSplitRatio)
-        {
-            var shuffledRecords = records.OrderBy(_ => Guid.NewGuid())
-                .ToList();
+        public IList<string> Attributes { get; }
+        
+        public IEnumerable<IList<string>> Records { get; }
+        
+        public string ClassificationAttribute => "class type";
 
-            var splitPoint = (int)(shuffledRecords.Count * trainingTestSplitRatio);
-
-            return (shuffledRecords.Take(splitPoint).ToList(),
-                shuffledRecords.Skip(splitPoint).ToList());
-        }
-
-        private static (IList<string> Attributes, IEnumerable<IList<string>> Records) LoadAttributesAndRecords()
+        private static (IList<string> Attributes, IEnumerable<IList<string>> Records) GetAttributesAndRecords()
         {
             using var file = new StreamReader(new FileStream("Resources/zoo.csv", FileMode.Open));
             return (ReadAttributes(file), ReadRecords(file));

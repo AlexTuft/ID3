@@ -4,7 +4,6 @@ using C45.Tree;
 using C45.Tree.Drawing;
 using System;
 
-using static C45.Common.ListHelpers;
 
 namespace C45
 {
@@ -12,11 +11,10 @@ namespace C45
     {
         static void Main(string[] args)
         {
-            var dataSets = ZooDatasetLoader.Load(0.7);
-            var classificationAttributue = "class type";
+            var dataSets = new DataSet(new ZooDataFile(), trainingTestSplitRatio: 0.7);
 
             var treeBuilder = new C45TreeBuilder();
-            var tree = treeBuilder.BuildTree(dataSets.TrainigData, classificationAttributue);
+            var tree = treeBuilder.BuildTree(dataSets.TrainingData, dataSets.ClassificationAttribute);
             
             Console.WriteLine(tree.Draw());
 
@@ -29,7 +27,7 @@ namespace C45
                 {
                     string predictedClassification = tree.Classify(row);
 
-                    string @class = row[classificationAttributue];
+                    string @class = row[dataSets.ClassificationAttribute];
                     if (@class == predictedClassification)
                     {
                         correctPredictions++;
