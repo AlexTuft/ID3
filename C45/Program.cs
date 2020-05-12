@@ -1,4 +1,3 @@
-using C45.Data;
 using C45.Loaders;
 using C45.Tree;
 using C45.Tree.Drawing;
@@ -11,7 +10,7 @@ namespace C45
     {
         static void Main(string[] args)
         {
-            var dataSets = new DataSet(new ZooDataFile(), trainingTestSplitRatio: 0.7);
+            var dataSets = new DataSet(new IncomeDataFile(), trainingTestSplitRatio: 0.7);
 
             var treeBuilder = new C45TreeBuilder();
             var tree = treeBuilder.BuildTree(dataSets.TrainingData, dataSets.ClassificationAttribute);
