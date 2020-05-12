@@ -4,7 +4,7 @@ namespace C45.Loaders
 {
     public interface IDataFile
     {
-        IList<string> Attributes { get; }
+        IEnumerable<string> Attributes { get; }
 
         IEnumerable<IList<string>> Records { get; }
 

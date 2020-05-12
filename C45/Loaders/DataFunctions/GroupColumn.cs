@@ -13,11 +13,11 @@ namespace C45.Loaders.DataFunctions
         public GroupColumn(IDataFile dataFile, string columnName, Func<string, string> groupBy)
         {
             _dataFile = dataFile;
-            _columnNameIndex = Attributes.IndexOf(columnName);
+            _columnNameIndex = Attributes.ToList().IndexOf(columnName);
             _groupBy = groupBy;
         }
 
-        public IList<string> Attributes => _dataFile.Attributes;
+        public IEnumerable<string> Attributes => _dataFile.Attributes;
 
         public IEnumerable<IList<string>> Records => _dataFile.Records
             .Select(x =>

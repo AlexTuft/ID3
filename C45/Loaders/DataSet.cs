@@ -28,10 +28,11 @@ namespace C45.Loaders
         {
             var trainingAndTestData = SplitData(dataFileLoader.Records, trainingTestSplitRatio);
 
-            var trainingSet = new DataTable(dataFileLoader.Attributes);
+            var attributes = dataFileLoader.Attributes.ToList();
+            var trainingSet = new DataTable(attributes);
             trainingSet.AddRows(trainingAndTestData.TrainingData);
 
-            var testSet = new DataTable(dataFileLoader.Attributes);
+            var testSet = new DataTable(attributes);
             testSet.AddRows(trainingAndTestData.TestData);
 
             return (trainingSet, testSet);

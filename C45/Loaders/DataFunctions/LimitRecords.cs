@@ -14,7 +14,7 @@ namespace C45.Loaders.DataFunctions
             _count = count;
         }
 
-        public IList<string> Attributes => _dataFile.Attributes;
+        public IEnumerable<string> Attributes => _dataFile.Attributes;
 
         public IEnumerable<IList<string>> Records => _dataFile.Records.Take(_count);
 

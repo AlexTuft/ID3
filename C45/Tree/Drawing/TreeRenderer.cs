@@ -1,105 +1,53 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Text;
 
 namespace C45.Tree.Drawing
 {
     public static class TreeRenderer
     {
-        private const int NodeConnectionStartOffsetX = 2;
-        private const int NodeConnectionStartOffsetY = 3;
-        private const int ConnectionEndOffsetX = 5;
+        private static int numberOfLeafNodes = 0;
+        private static int maxDepth = 0;
 
         public static string Draw(this IDecisionTree tree)
         {
-            var canvas = new TextCanvas();
-            ProcessTree(tree, canvas, 0, 0, true);
-            return canvas.ToString();
+            numberOfLeafNodes = 0;
+            maxDepth = 0;
+
+            var treeView = new StringBuilder();
+            DrawTree(tree, depth: 0, treeView);
+
+            treeView.Append($"\nMax depth: {maxDepth}, Leaf nodes: {numberOfLeafNodes}\n");
+
+            return treeView.ToString();
         }
 
-        private static int ProcessTree(IDecisionTree tree, TextCanvas canvas, int x, int y, bool isRootNode)
+        private static void DrawTree(IDecisionTree tree, int depth, StringBuilder treeView)
         {
-            if (tree is C45TreeBuilder.DecisionTreeNode treeNode)
+            maxDepth = Math.Max(maxDepth, depth);
+
+            if (tree is IDecisionNode decisionNode)
             {
-                DrawNode(tree, x, y, canvas, isRootNode ? NodeType.Root : NodeType.Decision);
-
-                x += NodeConnectionStartOffsetX;
-                y += NodeConnectionStartOffsetY;
-
-                var children = treeNode.Children.ToList();
-                for (int i = 0; i < children.Count; i++)
+                foreach (var child in decisionNode.Children)
                 {
-                    bool isLastConnection = i == children.Count - 1;
-                    int nextLineY = DrawChild(canvas, x, y, children, i, isLastConnection);
-
-                    if (!isLastConnection)
+                    for (int _ = 0; _ < depth; _++)
                     {
-                        DrawConnectionLine(y + 1, nextLineY, x, canvas);
+                        treeView.Append("|  ");
                     }
 
-                    y = nextLineY;
+                    treeView.Append($"{tree.Label} = {child.Key}");
+
+                    if (child.Value is IDecisionNode)
+                    {
+                        treeView.Append("\n");
+                        DrawTree(child.Value, depth + 1, treeView);
+                    }
+                    else
+                    {
+                        treeView.Append($" -> [{child.Value.Label}]\n");
+                        numberOfLeafNodes++;
+                    }
                 }
             }
-            else
-            {
-                DrawNode(tree, x, y, canvas, NodeType.Leaf);
-                y += NodeConnectionStartOffsetY;
-            }
-
-            return y;
-        }
-
-        private static int DrawChild(TextCanvas canvas, int x, int y, List<KeyValuePair<string, IDecisionTree>> children, int i, bool isLastConnection)
-        {
-            DrawConnection(children[i].Key, x, y, canvas, isLastConnection);
-            x += children[i].Key.Length + ConnectionEndOffsetX;
-
-            var nextLineY = ProcessTree(children[i].Value, canvas, x, y, false);
-            return nextLineY;
-        }
-
-        private static void DrawNode(IDecisionTree node, int x, int y, TextCanvas canvas, NodeType type)
-        {
-            var labelLength = node.Label.Length;
-
-            canvas.Draw(new StringBuilder()
-                .Append('┌')
-                .Append('─', labelLength + 2)
-                .Append('┐')
-                .Append('\n')
-                .Append(type == NodeType.Root ? "│ " : "┤ ")
-                .Append(node.Label.ToUpper())
-                .Append(" │")
-                .Append('\n')
-                .Append('└')
-                .Append('─')
-                .Append(type == NodeType.Leaf ? '─' : '┬')
-                .Append('─', labelLength)
-                .Append('┘')
-                .ToString(), x, y);
-        }
-
-        private static void DrawConnection(string connection, int x, int y, TextCanvas canvas, bool isLastConnection)
-        {
-            canvas.Draw(new StringBuilder()
-                .Append('│')
-                .Append('\n')
-                .Append(isLastConnection ? "└─ " : "├─ ")
-                .Append(connection.ToUpper())
-                .Append(" ─")
-                .ToString(), x, y);
-        }
-
-        private static void DrawConnectionLine(int y, int d, int x, TextCanvas canvas)
-        {
-            canvas.Draw(new StringBuilder()
-                .Append("│\n", d - y)
-                .ToString(), x, y + 1);
-        }
-
-        private enum NodeType
-        {
-            Root, Decision, Leaf
         }
     }
 }

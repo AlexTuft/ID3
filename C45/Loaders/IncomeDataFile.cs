@@ -12,26 +12,29 @@ namespace C45.Loaders
 
         public IncomeDataFile()
         {
-            _dataFile = new ReadDataFile(DateFilePath).ShuffleRecords()
+            _dataFile = new ReadDataFile(DateFilePath, "income")
                 .NormalizeAttributes()
-                .FilterRecords("workclass", IsNotMissingValue)
-                .LimitRecords(5000)
-                .RemoveColumn("fnlwgt")
-                .RemoveColumn("relationship")
-                .RemoveColumn("education-num")
-                .RemoveColumn("capital-gain")
-                .RemoveColumn("capital-loss")
-                .RemoveColumn("hours-per-week")
                 .NormalizeRecords()
+                .FilterRecords(IsNotMissingValue)
+                .ShuffleRecords()
+                .LimitRecords(5000)
+                .RemoveColumns("fnlwgt", "relationship", "education-num", "capital-gain", "capital-loss", "hours-per-week")
                 .GroupColumn("age", ToAgeGroups)
                 .GroupColumn("native-country", ToRegions);
 
             _dataFile.Dump(DateFilePath + $"_{DateTime.Now.Ticks}.txt");
         }
 
-        private static bool IsNotMissingValue(string x)
+
+        public IEnumerable<string> Attributes => _dataFile.Attributes;
+
+        public IEnumerable<IList<string>> Records => _dataFile.Records;
+
+        public string ClassificationAttribute => _dataFile.ClassificationAttribute;
+
+        private static bool IsNotMissingValue(IList<string> record)
         {
-            return !string.Equals(x.Trim(), MissingValue, StringComparison.Ordinal);
+            return record.Contains(MissingValue);
         }
 
         private static string ToAgeGroups(string ageText)
@@ -113,11 +116,5 @@ namespace C45.Loaders
 
             return dictionary.ContainsKey(countryName) ? dictionary[countryName] : countryName;
         }
-
-        public IList<string> Attributes => _dataFile.Attributes;
-
-        public IEnumerable<IList<string>> Records => _dataFile.Records;
-
-        public string ClassificationAttribute => _dataFile.ClassificationAttribute;
     }
 }

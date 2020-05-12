@@ -13,7 +13,7 @@ namespace C45.Loaders.DataFunctions
             _dataFile = dataFile;
         }
 
-        public IList<string> Attributes => _dataFile.Attributes;
+        public IEnumerable<string> Attributes => _dataFile.Attributes;
 
         public IEnumerable<IList<string>> Records => _dataFile.Records.OrderBy(x => Guid.NewGuid());
 

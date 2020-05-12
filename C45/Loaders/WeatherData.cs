@@ -26,7 +26,7 @@ namespace C45.Loaders
             };
         }
 
-        public IList<string> Attributes { get; }
+        public IEnumerable<string> Attributes { get; }
 
         public IEnumerable<IList<string>> Records { get; }
 

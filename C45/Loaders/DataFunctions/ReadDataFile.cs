@@ -6,18 +6,19 @@ namespace C45.Loaders.DataFunctions
 {
     public class ReadDataFile : IDataFile
     {
-        public ReadDataFile(string path)
+        public ReadDataFile(string path, string classficationAttribute)
         {
             var attributesAndRecords = GetAttributesAndRecords(path);
             Attributes = attributesAndRecords.Attributes;
             Records = attributesAndRecords.Records;
+            ClassificationAttribute = classficationAttribute;
         }
 
-        public IList<string> Attributes { get; }
+        public IEnumerable<string> Attributes { get; }
 
         public IEnumerable<IList<string>> Records { get; }
 
-        public string ClassificationAttribute => "income";
+        public string ClassificationAttribute { get; }
 
         private static (IList<string> Attributes, IEnumerable<IList<string>> Records) GetAttributesAndRecords(string path)
         {
