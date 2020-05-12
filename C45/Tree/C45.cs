@@ -50,10 +50,16 @@ namespace C45.Tree
                 attributeNode.Children[value] = BuildTree(newData, classifier);
             }
 
+            var single = "";
+            if (attributeNode.AreAllOutcomesIdentical(ref single))
+            {
+                return new DecisionTreeLeafNode(single);
+            }
+
             return attributeNode;
         }
 
-        internal class DecisionTreeNode : IDecisionTree
+        internal class DecisionTreeNode : IDecisionNode
         {
             private readonly string _attribute;
 
@@ -80,7 +86,7 @@ namespace C45.Tree
             }
         }
 
-        internal class DecisionTreeLeafNode : IDecisionTree
+        internal class DecisionTreeLeafNode : ILeafNode
         {
             private readonly string _classification;
 
@@ -95,6 +101,39 @@ namespace C45.Tree
             {
                 return _classification;
             }
+        }
+    }
+
+    public static class IDecisionTreeHelpers
+    {
+        public static bool AreAllOutcomesIdentical(this IDecisionTree decisionTree, ref string single)
+        {
+            var outcomes = decisionTree.GetAllOutcomes();
+            if (outcomes.Count() == 1)
+            {
+                single = outcomes.Single();
+                return true;
+            }
+            return false;
+        }
+
+        public static ISet<string> GetAllOutcomes(this IDecisionTree decisionTree)
+        {
+            var outcomes = new HashSet<string>();
+
+            if (decisionTree is IDecisionNode decisionNode)
+            {
+                foreach (var child in decisionNode.Children)
+                {
+                    outcomes.UnionWith(child.Value.GetAllOutcomes());
+                }
+            }
+            else
+            {
+                outcomes.Add(decisionTree.Label);
+            }
+
+            return outcomes;
         }
     }
 }
