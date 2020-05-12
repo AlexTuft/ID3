@@ -3,7 +3,7 @@ using C45.Loaders;
 using C45.Tree;
 using C45.Tree.Drawing;
 using System;
-
+using System.Linq;
 
 namespace C45
 {
@@ -15,8 +15,11 @@ namespace C45
 
             var treeBuilder = new C45TreeBuilder();
             var tree = treeBuilder.BuildTree(dataSets.TrainingData, dataSets.ClassificationAttribute);
-            
-            Console.WriteLine(tree.Draw());
+
+            if (args.Any(x => string.Equals(x, "--draw-tree")))
+            {
+                Console.WriteLine(tree.Draw());
+            }
 
             int totalPredictions = 0;
             int correctPredictions = 0;
@@ -35,7 +38,10 @@ namespace C45
                 }
                 catch (ClassificationException ex)
                 {
-                    Console.WriteLine("Unable to classify row because: " + ex.Message);
+                    if (args.Any(x => string.Equals(x, "--show-errors")))
+                    {
+                        Console.WriteLine("Unable to classify row because: " + ex.Message);
+                    }
                 }
 
                 totalPredictions++;
