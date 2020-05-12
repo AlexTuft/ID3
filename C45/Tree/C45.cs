@@ -14,6 +14,14 @@ namespace C45.Tree
             {
                 return new DecisionTreeLeafNode(classes.Single());
             }
+            else if (data.Attributes.Count() == 1)
+            {
+                return new DecisionTreeLeafNode(data.Rows()
+                    .GroupBy(x => x[classifier])
+                    .OrderByDescending(x => x.Key)
+                    .Select(x => x.First()[classifier])
+                    .First());
+            }
             else
             {
                 var attributeGains = data.GetGainForEachAttribute(classifier);
