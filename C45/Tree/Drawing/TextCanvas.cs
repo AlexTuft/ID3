@@ -7,6 +7,7 @@ namespace C45.Tree
     public class TextCanvas
     {
         private char[,] _canvas = new char[1, 1];
+        private int _maxX = 0;
         private int _maxY = 0;
 
         public void Draw(string text, int x, int y)
@@ -17,6 +18,10 @@ namespace C45.Tree
             
             var boundingBoxWidth = lines.Max(x => x.Length);
             var boundingBoxHeight = lines.Length;
+            
+            _maxX = Math.Max(_maxX, x + boundingBoxWidth);
+            _maxY = Math.Max(_maxY, y + boundingBoxHeight);
+
             CheckBounds(x + boundingBoxWidth, y + boundingBoxHeight);
             
             DrawToCanvas(lines, x, y);
@@ -31,7 +36,6 @@ namespace C45.Tree
                     _canvas[y + yy, x + xx] = textLines[yy][xx];
                 }
             }
-            _maxY = Math.Max(_maxY, y + textLines.Length);
         }
 
         private void CheckBounds(int x, int y)
@@ -90,12 +94,16 @@ namespace C45.Tree
         public override string ToString()
         {
             var builder = new StringBuilder();
-            for (int y = 0; y < _canvas.GetLength(0); y++) {
-                for (int x = 0; x < _canvas.GetLength(1); x++) {
+            
+            int limitY = Math.Min(_canvas.GetLength(0), _maxY);
+            int limitX = Math.Min(_canvas.GetLength(1), _maxX);
+            for (int y = 0; y < limitY; y++) {
+                for (int x = 0; x < limitX; x++) {
                     builder.Append(_canvas[y, x]);
                 }
                 builder.Append('\n');
             }
+
             return builder.ToString();
         }
     }
