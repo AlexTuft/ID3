@@ -69,10 +69,16 @@ namespace C45.Tree
             {
                 var value = row[_attribute];
 
-                // handle unseen value
+                // handle unseen value (Base case 3?)
                 if (!Children.ContainsKey(value))
                 {
-                    throw new ClassificationException($"Unseen value ({value}) for attribute {_attribute}.");
+                    // store most common value for use later
+                    if (!Children.ContainsKey("__default"))
+                    {
+                        Children["__default"] = new DecisionTreeLeafNode(this.MostCommonOutcome());
+                    }
+
+                    return Children["__default"].Classify(row);
                 }
 
                 return Children[value].Classify(row);
@@ -127,6 +133,40 @@ namespace C45.Tree
             }
 
             return outcomes;
+        }
+
+        public static string MostCommonOutcome(this IDecisionTree decisionTree)
+        {
+            var counts = new Dictionary<string, int>();
+            decisionTree.CountOutcomes(counts);
+
+            return counts.Select(x => (x.Key, x.Value))
+                .ToList()
+                .OrderByDescending(x => x.Value)
+                .First()
+                .Key;
+        }
+
+        public static void CountOutcomes(this IDecisionTree decisionTree, IDictionary<string, int> counts)
+        {
+            if (decisionTree is IDecisionNode decisionNode)
+            {
+                foreach (var child in decisionNode.Children)
+                {
+                    child.Value.CountOutcomes(counts);
+                }
+            }
+            else
+            {
+                if (!counts.ContainsKey(decisionTree.Label))
+                {
+                    counts[decisionTree.Label] = 1;
+                }
+                else
+                {
+                    counts[decisionTree.Label]++;
+                }
+            }
         }
     }
 }
