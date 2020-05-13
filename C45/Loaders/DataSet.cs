@@ -13,14 +13,14 @@ namespace C45.Loaders
             var dataSets = Load(dataFile, trainingTestSplitRatio);
             TrainingData = dataSets.TrainingData;
             TestData = dataSets.TestData;
-            ClassificationAttribute = dataFile.ClassificationAttribute;
+            TargetAttribute = dataFile.TargetAttribute;
         }
 
         public DataTable TrainingData { get; }
 
         public DataTable TestData { get; }
 
-        public string ClassificationAttribute { get; }
+        public string TargetAttribute { get; }
 
         private static (DataTable TrainingData, DataTable TestData) Load(
             IDataFile dataFileLoader,

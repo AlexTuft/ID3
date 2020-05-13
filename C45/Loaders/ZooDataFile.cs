@@ -20,7 +20,7 @@ namespace C45.Loaders
 
         public IEnumerable<IList<string>> Records { get; }
 
-        public string ClassificationAttribute => "class type";
+        public string TargetAttribute => "class type";
 
         private static (IList<string> Attributes, IEnumerable<IList<string>> Records) GetAttributesAndRecords()
         {

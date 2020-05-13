@@ -30,6 +30,6 @@ namespace C45.Loaders
 
         public IEnumerable<IList<string>> Records { get; }
 
-        public string ClassificationAttribute => "Play";
+        public string TargetAttribute => "Play";
     }
 }

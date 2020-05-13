@@ -26,7 +26,7 @@ namespace C45.Loaders.DataFunctions
                 return x;
             });
 
-        public string ClassificationAttribute => _dataFile.ClassificationAttribute;
+        public string TargetAttribute => _dataFile.TargetAttribute;
     }
 
     public static class GroupColumnFluentExtension

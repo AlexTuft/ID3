@@ -6,41 +6,46 @@ namespace C45.Tree
 {
     public class C45TreeBuilder
     {
-        public IDecisionTree BuildTree(DataTable data, string classifier)
+        public IDecisionTree BuildTree(DataTable data, string targetAttribute)
         {
-            var classes = data.GetUniqueValueForAttribute(classifier);
+            var classes = data.GetDistinctValuesForAttribute(targetAttribute);
             if (classes.Count == 1)
             {
                 return new DecisionTreeLeafNode(classes.Single());
             }
             else if (data.Attributes.Count() == 1)
             {
-                return new DecisionTreeLeafNode(data.Rows()
-                    .GroupBy(x => x[classifier])
-                    .OrderByDescending(x => x.Key)
-                    .Select(x => x.First()[classifier])
-                    .First());
+                return new DecisionTreeLeafNode(GetMostCommonOutcome(data, targetAttribute));
             }
             else
             {
-                var attributeGains = data.GetGainForEachAttribute(classifier);
+                var attributeGains = data.GetGainForEachAttribute(targetAttribute);
                 // do something if all gains are 0
 
-                return HandleDefaultCase(data, attributeGains, classifier);
+                return HandleDefaultCase(data, attributeGains, targetAttribute);
             }
         }
 
-        private IDecisionTree HandleDefaultCase(DataTable data, IList<(string Attribute, double Gain)> attributeGains, string classifier)
+        private static string GetMostCommonOutcome(DataTable data, string targetAttribute)
+        {
+            return data.Rows()
+                .GroupBy(x => x[targetAttribute])
+                .OrderByDescending(x => x.Key)
+                .Select(x => x.First()[targetAttribute])
+                .First();
+        }
+
+        private IDecisionTree HandleDefaultCase(DataTable data, IList<(string Attribute, double Gain)> attributeGains, string targetAttribute)
         {
             var attributeWithHighestGain = attributeGains.GetAttributeWithHighestGain();
-            var valuesForAttribute = data.GetUniqueValueForAttribute(attributeWithHighestGain);
+            var valuesForAttribute = data.GetDistinctValuesForAttribute(attributeWithHighestGain);
 
             var attributeNode = new DecisionTreeNode(attributeWithHighestGain);
 
             foreach (var value in valuesForAttribute)
             {
                 var newData = data.DrillDown(attributeWithHighestGain, value);
-                attributeNode.Children[value] = BuildTree(newData, classifier);
+                attributeNode.Children[value] = BuildTree(newData, targetAttribute);
             }
 
             var single = "";
@@ -54,20 +59,18 @@ namespace C45.Tree
 
         internal class DecisionTreeNode : IDecisionNode
         {
-            private readonly string _attribute;
-
             public DecisionTreeNode(string attribute)
             {
-                _attribute = attribute;
+                Label = attribute;
             }
 
-            public string Label => _attribute;
+            public string Label { get; }
 
             public IDictionary<string, IDecisionTree> Children { get; } = new Dictionary<string, IDecisionTree>();
 
             public string Classify(DataTable.Row row)
             {
-                var value = row[_attribute];
+                var value = row[Label];
 
                 // handle unseen value (Base case 3?)
                 if (!Children.ContainsKey(value))
@@ -87,18 +90,16 @@ namespace C45.Tree
 
         internal class DecisionTreeLeafNode : ILeafNode
         {
-            private readonly string _classification;
-
             public DecisionTreeLeafNode(string classification)
             {
-                _classification = classification;
+                Label = classification;
             }
 
-            public string Label => _classification;
+            public string Label { get; }
 
             public string Classify(DataTable.Row row)
             {
-                return _classification;
+                return Label;
             }
         }
     }

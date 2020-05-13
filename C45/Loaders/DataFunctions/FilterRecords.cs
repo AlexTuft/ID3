@@ -20,7 +20,7 @@ namespace C45.Loaders.DataFunctions
         public IEnumerable<IList<string>> Records => _dataFile.Records
             .Where(x => _predicate(x));
 
-        public string ClassificationAttribute => _dataFile.ClassificationAttribute;
+        public string TargetAttribute => _dataFile.TargetAttribute;
     }
 
     public static class FilterRecordsFluentExtension

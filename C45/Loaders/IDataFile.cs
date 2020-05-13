@@ -8,6 +8,6 @@ namespace C45.Loaders
 
         IEnumerable<IList<string>> Records { get; }
 
-        string ClassificationAttribute { get; }
+        string TargetAttribute { get; }
     }
 }

@@ -89,7 +89,7 @@ namespace C45
         private static IDecisionTree BuildTree(DataSet dataSets)
         {
             var treeBuilder = new C45TreeBuilder();
-            var tree = treeBuilder.BuildTree(dataSets.TrainingData, dataSets.ClassificationAttribute);
+            var tree = treeBuilder.BuildTree(dataSets.TrainingData, dataSets.TargetAttribute);
             return tree;
         }
 
@@ -112,7 +112,7 @@ namespace C45
                 {
                     string predictedClassification = tree.Classify(row);
 
-                    string @class = row[dataSets.ClassificationAttribute];
+                    string @class = row[dataSets.TargetAttribute];
                     if (@class == predictedClassification)
                     {
                         correctPredictions++;

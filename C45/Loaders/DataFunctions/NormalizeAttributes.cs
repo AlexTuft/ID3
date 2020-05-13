@@ -17,7 +17,7 @@ namespace C45.Loaders.DataFunctions
 
         public IEnumerable<IList<string>> Records => _dataFile.Records;
 
-        public string ClassificationAttribute => Normalize(_dataFile.ClassificationAttribute);
+        public string TargetAttribute => Normalize(_dataFile.TargetAttribute);
 
         private string Normalize(string x)
         {

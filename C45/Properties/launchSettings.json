@@ -1,8 +1,7 @@
 {
   "profiles": {
     "C45": {
-      "commandName": "Project",
-      "commandLineArgs": "--test 100"
+      "commandName": "Project"
     }
   }
 }

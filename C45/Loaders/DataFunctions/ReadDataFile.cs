@@ -11,14 +11,14 @@ namespace C45.Loaders.DataFunctions
             var attributesAndRecords = GetAttributesAndRecords(path);
             Attributes = attributesAndRecords.Attributes;
             Records = attributesAndRecords.Records;
-            ClassificationAttribute = classficationAttribute;
+            TargetAttribute = classficationAttribute;
         }
 
         public IEnumerable<string> Attributes { get; }
 
         public IEnumerable<IList<string>> Records { get; }
 
-        public string ClassificationAttribute { get; }
+        public string TargetAttribute { get; }
 
         private static (IList<string> Attributes, IEnumerable<IList<string>> Records) GetAttributesAndRecords(string path)
         {

@@ -28,7 +28,7 @@ namespace C45.Loaders
 
         public IEnumerable<IList<string>> Records => _dataFile.Records;
 
-        public string ClassificationAttribute => _dataFile.ClassificationAttribute;
+        public string TargetAttribute => _dataFile.TargetAttribute;
 
         private static bool IsNotMissingValue(IList<string> record)
         {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace C45.Loaders.DataFunctions
@@ -41,7 +40,7 @@ namespace C45.Loaders.DataFunctions
                 return y;
             });
 
-        public string ClassificationAttribute => _dataFile.ClassificationAttribute;
+        public string TargetAttribute => _dataFile.TargetAttribute;
     }
 
     public static class RemoveColumnFluentExtension

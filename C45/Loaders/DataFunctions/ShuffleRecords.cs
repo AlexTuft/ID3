@@ -17,7 +17,7 @@ namespace C45.Loaders.DataFunctions
 
         public IEnumerable<IList<string>> Records => _dataFile.Records.OrderBy(x => Guid.NewGuid());
 
-        public string ClassificationAttribute => _dataFile.ClassificationAttribute;
+        public string TargetAttribute => _dataFile.TargetAttribute;
     }
 
     public static class ShuffleRecordsFluentExtension
