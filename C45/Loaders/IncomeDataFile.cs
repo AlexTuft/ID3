@@ -17,12 +17,10 @@ namespace C45.Loaders
                 .NormalizeRecords()
                 .FilterRecords(IsNotMissingValue)
                 .ShuffleRecords()
-                .LimitRecords(5000)
-                .RemoveColumns("fnlwgt", "relationship", "education-num", "capital-gain", "capital-loss", "hours-per-week")
-                .GroupColumn("age", ToAgeGroups)
-                .GroupColumn("native-country", ToRegions);
+                .RemoveColumns("fnlwgt", "education-num", "capital-gain", "capital-loss", "hours-per-week")
+                .GroupColumn("age", ToAgeGroups);
 
-            _dataFile.Dump(DateFilePath + $"_{DateTime.Now.Ticks}.txt");
+            _dataFile.Dump(DateFilePath + $"_{DateTime.Now.Ticks}.csv");
         }
 
 
@@ -34,7 +32,7 @@ namespace C45.Loaders
 
         private static bool IsNotMissingValue(IList<string> record)
         {
-            return record.Contains(MissingValue);
+            return !record.Contains(MissingValue);
         }
 
         private static string ToAgeGroups(string ageText)
