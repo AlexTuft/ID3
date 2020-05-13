@@ -1,5 +1,4 @@
 ﻿using C45.Loaders.DataFunctions;
-using System;
 using System.Collections.Generic;
 
 namespace C45.Loaders
@@ -19,8 +18,6 @@ namespace C45.Loaders
                 .ShuffleRecords()
                 .RemoveColumns("fnlwgt", "education-num", "capital-gain", "capital-loss", "hours-per-week")
                 .GroupColumn("age", ToAgeGroups);
-
-            _dataFile.Dump(DateFilePath + $"_{DateTime.Now.Ticks}.csv");
         }
 
 

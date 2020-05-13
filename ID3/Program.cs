@@ -8,8 +8,10 @@ namespace C45
 {
     public class Program
     {
+        private const string FlagNoPause = "--no-pause";
         private const string FlagDrawTree = "--draw-tree";
         private const string FlagShowErrors = "--show-errors";
+        private const string FlagDumpData = "--dump-data";
 
         private const string OptionSplitData = "--data-split"; // expects as next arg as 0.0 - 1.0
 
@@ -40,6 +42,12 @@ namespace C45
             {
                 Console.WriteLine($"Average accuracy {(double)totalAccuracy / runs}%");
             }
+
+            if (!args.Contains(FlagNoPause))
+            {
+                Console.WriteLine("Press any key to close program...");
+                Console.ReadKey();
+            }
         }
 
         private static int GetRunCount()
@@ -56,7 +64,7 @@ namespace C45
         {
             IDataFile dataFile = LoadData();
             var trainingTestSplitRatio = GetDataSplit();
-            return new DataSet(dataFile, trainingTestSplitRatio);
+            return new DataSet(dataFile, trainingTestSplitRatio, Args.Contains(FlagDumpData));
         }
 
         private static double GetDataSplit()
