@@ -11,10 +11,11 @@ namespace C45
         private const string FlagDrawTree = "--draw-tree";
         private const string FlagShowErrors = "--show-errors";
 
-        private const string Option_SplitData = "--data-split"; // expects as next arg
+        private const string OptionSplitData = "--data-split"; // expects as next arg as 0.0 - 1.0
 
         private const string SwitchWeatherDataSet = "--dataset-weather";
         private const string SwitchZooDataSet = "--dataset-zoo";
+        private const string SwitchTestMode = "--test"; // expects next arg as >=0
 
         private static string[] Args { get; set; }
 
@@ -22,11 +23,33 @@ namespace C45
         {
             Args = args;
 
-            DataSet dataSets = CreateDataSet();
-            IDecisionTree tree = BuildTree(dataSets);
+            int runs = GetRunCount();
 
-            DrawTree(args, tree);
-            ValidateTree(args, dataSets, tree);
+            int totalAccuracy = 0;
+
+            for (int i = 0; i < runs; i++)
+            {
+                DataSet dataSets = CreateDataSet();
+                IDecisionTree tree = BuildTree(dataSets);
+
+                DrawTree(args, tree);
+                totalAccuracy += ValidateTree(args, dataSets, tree);
+            }
+
+            if (runs > 1)
+            {
+                Console.WriteLine($"Average accuracy {(double)totalAccuracy / runs}%");
+            }
+        }
+
+        private static int GetRunCount()
+        {
+            var runCount = 1;
+            if (Args.Contains(SwitchTestMode))
+            {
+                int.TryParse(Args[Array.IndexOf(Args, SwitchTestMode) + 1], out runCount);
+            }
+            return runCount;
         }
 
         private static DataSet CreateDataSet()
@@ -39,9 +62,9 @@ namespace C45
         private static double GetDataSplit()
         {
             var trainingTestSplitRatio = 0.7;
-            if (Args.Contains(Option_SplitData))
+            if (Args.Contains(OptionSplitData))
             {
-                double.TryParse(Args[Array.IndexOf(Args, Option_SplitData) + 1], out trainingTestSplitRatio);
+                double.TryParse(Args[Array.IndexOf(Args, OptionSplitData) + 1], out trainingTestSplitRatio);
             }
 
             return trainingTestSplitRatio;
@@ -78,7 +101,7 @@ namespace C45
             }
         }
 
-        private static void ValidateTree(string[] args, DataSet dataSets, IDecisionTree tree)
+        private static int ValidateTree(string[] args, DataSet dataSets, IDecisionTree tree)
         {
             int totalPredictions = 0;
             int correctPredictions = 0;
@@ -106,7 +129,10 @@ namespace C45
                 totalPredictions++;
             }
 
-            Console.WriteLine($"Total predictions: {totalPredictions}, correct: {correctPredictions} ({(int)((double)correctPredictions / totalPredictions * 100)}%)");
+            int accuracy = (int)((double)correctPredictions / totalPredictions * 100);
+            Console.WriteLine($"Total predictions: {totalPredictions}, correct: {correctPredictions} ({accuracy}%)");
+
+            return accuracy;
         }
     }
 }

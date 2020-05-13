@@ -2,7 +2,7 @@
   "profiles": {
     "C45": {
       "commandName": "Project",
-      "commandLineArgs": "--draw-tree"
+      "commandLineArgs": "--test 100"
     }
   }
 }
