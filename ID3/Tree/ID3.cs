@@ -1,9 +1,13 @@
 ﻿using C45.Data;
+using ID3.Tree;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace C45.Tree
 {
+    /// <summary>
+    /// Contains logic for building a decision tree.
+    /// </summary>
     public class C45TreeBuilder
     {
         public IDecisionTree BuildTree(DataTable data, string targetAttribute)
@@ -15,7 +19,7 @@ namespace C45.Tree
             }
             else if (data.Attributes.Count() == 1)
             {
-                return new DecisionTreeLeafNode(GetMostCommonOutcome(data, targetAttribute));
+                return new DecisionTreeLeafNode(data.GetMostCommonOutcome(targetAttribute));
             }
             else
             {
@@ -26,35 +30,41 @@ namespace C45.Tree
             }
         }
 
-        private static string GetMostCommonOutcome(DataTable data, string targetAttribute)
-        {
-            return data.Rows()
-                .GroupBy(x => x[targetAttribute])
-                .OrderByDescending(x => x.Key)
-                .Select(x => x.First()[targetAttribute])
-                .First();
-        }
-
         private IDecisionTree HandleDefaultCase(DataTable data, IList<(string Attribute, double Gain)> attributeGains, string targetAttribute)
         {
             var attributeWithHighestGain = attributeGains.GetAttributeWithHighestGain();
             var valuesForAttribute = data.GetDistinctValuesForAttribute(attributeWithHighestGain);
 
-            var attributeNode = new DecisionTreeNode(attributeWithHighestGain);
+            var decisionNode = new DecisionTreeNode(attributeWithHighestGain);
+            CreateChildNodes(data, targetAttribute, attributeWithHighestGain, valuesForAttribute, decisionNode);
+            
+            var prunedBranch = PruneBranchIfRequired(decisionNode);
+            if (prunedBranch != null)
+            {
+                return prunedBranch;
+            }
 
+            return decisionNode;
+        }
+
+        private void CreateChildNodes(DataTable data, string targetAttribute, string attributeWithHighestGain, ISet<string> valuesForAttribute, DecisionTreeNode attributeNode)
+        {
             foreach (var value in valuesForAttribute)
             {
                 var newData = data.DrillDown(attributeWithHighestGain, value);
                 attributeNode.Children[value] = BuildTree(newData, targetAttribute);
             }
+        }
 
+        private IDecisionTree PruneBranchIfRequired(IDecisionTree decisionNode)
+        {
             var single = "";
-            if (attributeNode.AreAllOutcomesIdentical(ref single))
+            if (decisionNode.AreAllOutcomesIdentical(ref single))
             {
                 return new DecisionTreeLeafNode(single);
             }
 
-            return attributeNode;
+            return null;
         }
 
         internal class DecisionTreeNode : IDecisionNode
@@ -104,6 +114,9 @@ namespace C45.Tree
         }
     }
 
+    /// <summary>
+    /// Contains extension methods IDecisionTree to assist with building the tree.
+    /// </summary>
     public static class IDecisionTreeHelpers
     {
         public static bool AreAllOutcomesIdentical(this IDecisionTree decisionTree, ref string single)

@@ -10,7 +10,6 @@ namespace C45
     {
         private const string FlagNoPause = "--no-pause";
         private const string FlagDrawTree = "--draw-tree";
-        private const string FlagShowErrors = "--show-errors";
         private const string FlagDumpData = "--dump-data";
 
         private const string OptionSplitData = "--data-split"; // expects as next arg as 0.0 - 1.0
@@ -116,22 +115,12 @@ namespace C45
 
             foreach (var row in dataSets.TestData.Rows())
             {
-                try
-                {
-                    string predictedClassification = tree.Classify(row);
+                string predictedClassification = tree.Classify(row);
 
-                    string @class = row[dataSets.TargetAttribute];
-                    if (@class == predictedClassification)
-                    {
-                        correctPredictions++;
-                    }
-                }
-                catch (ClassificationException ex)
+                string @class = row[dataSets.TargetAttribute];
+                if (@class == predictedClassification)
                 {
-                    if (args.Contains(FlagShowErrors))
-                    {
-                        Console.WriteLine("Unable to classify row because: " + ex.Message);
-                    }
+                    correctPredictions++;
                 }
 
                 totalPredictions++;

@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using C45.Data;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace C45.Data
+namespace ID3.Tree
 {
+    /// <summary>
+    /// Contains extension methods for DataTable to help build the tree and calculate entropy/information gain
+    /// </summary>
     public static class DataTableHelpers
     {
         public static ISet<string> GetDistinctValuesForAttribute(this DataTable data, string attribute)
@@ -33,6 +37,15 @@ namespace C45.Data
         public static bool AllClassesAreSame(this DataTable data, string targetAttribute)
         {
             return data.GetDistinctValuesForAttribute(targetAttribute).Count == 1;
+        }
+
+        public static string GetMostCommonOutcome(this DataTable data, string targetAttribute)
+        {
+            return data.Rows()
+                .GroupBy(x => x[targetAttribute])
+                .OrderByDescending(x => x.Key)
+                .Select(x => x.First()[targetAttribute])
+                .First();
         }
     }
 }
